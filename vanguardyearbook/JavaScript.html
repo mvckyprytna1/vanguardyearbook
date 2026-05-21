@@ -1,0 +1,141 @@
+<script>
+    let appData = { siswa: [], guru: [], pesan: [], galeri: [] };
+
+    window.addEventListener('DOMContentLoaded', () => {
+        // Fetch async via GAS
+        google.script.run
+            .withSuccessHandler(onDataLoaded)
+            .withFailureHandler(err => console.error(err))
+            .getAllData();
+    });
+
+    function onDataLoaded(data) {
+        appData = data;
+        renderSiswa();
+        renderGuru();
+        renderGaleri();
+        // Hapus elemen skeleton manual jika perlu, namun render function menimpa innerHTML otomatis.
+    }
+
+    // SPA Navigation
+    function navigate(sectionId) {
+        document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        document.querySelectorAll('.page-section').forEach(el => el.classList.add('section-hidden'));
+        
+        const target = document.getElementById(sectionId);
+        target.classList.remove('section-hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Tab Switcher
+    function switchTab(tabId) {
+        document.getElementById('tab-siswa').classList.add('hidden');
+        document.getElementById('tab-guru').classList.add('hidden');
+        document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+        const activeClasses = ['bg-gold', 'text-darkbg', 'shadow-lg', 'shadow-gold/20'];
+        const inactiveClasses = ['text-gold', 'hover:bg-gold', 'hover:text-darkbg'];
+
+        document.getElementById('btn-tab-siswa').classList.remove(...activeClasses);
+        document.getElementById('btn-tab-siswa').classList.add(...inactiveClasses);
+        
+        document.getElementById('btn-tab-guru').classList.remove(...activeClasses);
+        document.getElementById('btn-tab-guru').classList.add(...inactiveClasses);
+        
+        const activeBtn = document.getElementById(`btn-tab-${tabId}`);
+        activeBtn.classList.remove(...inactiveClasses);
+        activeBtn.classList.add(...activeClasses);
+    }
+
+    // Render Data with Hover Effects & Click Listeners
+    function renderSiswa() {
+        const container = document.getElementById('tab-siswa');
+        container.innerHTML = appData.siswa.map((item, index) => `
+            <div onclick="openProfileModal('siswa', ${index})" class="group cursor-pointer border border-gold/20 p-6 bg-darkcard shadow-md hover:shadow-xl hover:shadow-gold/10 hover:-translate-y-2 transition-all duration-400 rounded-sm">
+                <div class="overflow-hidden mb-4 rounded-sm border border-gold/30">
+                    <img src="${item.foto_url}" alt="${item.nama}" class="w-full h-56 object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500">
+                </div>
+                <h4 class="text-xl font-cinzel font-bold text-white group-hover:text-gold transition-colors">${item.nama}</h4>
+                <p class="text-gray-400 text-sm">Angkatan ${item.angkatan}</p>
+            </div>
+        `).join('');
+    }
+
+    function renderGuru() {
+        const container = document.getElementById('tab-guru');
+        container.innerHTML = appData.guru.map((item, index) => `
+            <div onclick="openProfileModal('guru', ${index})" class="group cursor-pointer border border-gold/20 p-6 bg-darkcard text-center hover:bg-black/60 hover:-translate-y-1 transition-all duration-300 rounded-sm">
+                <img src="${item.foto_url}" class="w-24 h-24 rounded-full mx-auto object-cover mb-4 border-2 border-gold/40 group-hover:border-gold transition-colors duration-300">
+                <h4 class="text-lg font-cinzel font-bold text-white">${item.nama}</h4>
+                <p class="text-gold text-sm">${item.jabatan}</p>
+            </div>
+        `).join('');
+    }
+
+    function renderGaleri() {
+        const container = document.getElementById('container-galeri');
+        container.innerHTML = appData.galeri.map((item, index) => `
+            <div onclick="openGalleryModal(${index})" class="group relative overflow-hidden border border-gold/20 cursor-pointer rounded-sm shadow-md hover:shadow-gold/20 transition-all duration-300">
+                <img src="${item.foto_url}" class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-500 ease-out">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h4 class="text-gold font-cinzel font-bold text-xl translate-y-2 group-hover:translate-y-0 transition-transform duration-300">${item.judul}</h4>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Modal Control Functions
+    function openProfileModal(type, index) {
+        const data = appData[type][index];
+        const modal = document.getElementById('modal-profil');
+        
+        document.getElementById('modal-profil-img').src = data.foto_url;
+        document.getElementById('modal-profil-nama').innerText = data.nama;
+        
+        const detailsContainer = document.getElementById('modal-profil-details');
+        const quotesContainer = document.getElementById('modal-profil-quotes-container');
+        
+        if(type === 'siswa') {
+            document.getElementById('modal-profil-subtitle').innerText = `Alumni Angkatan ${data.angkatan}`;
+            detailsContainer.innerHTML = `
+                <div class="flex gap-2"><span class="w-20 text-gray-500">TTL</span> <span>: ${data.ttl}</span></div>
+                <div class="flex gap-2"><span class="w-20 text-gray-500">Alamat</span> <span>: ${data.alamat}</span></div>
+                <div class="flex gap-2"><span class="w-20 text-gray-500">No HP</span> <span>: ${data.nohp}</span></div>
+                <div class="flex gap-2"><span class="w-20 text-gray-500">Instagram</span> <span class="text-gold">: ${data.ig}</span></div>
+            `;
+            document.getElementById('modal-profil-quotes').innerText = `"${data.quotes}"`;
+            quotesContainer.classList.remove('hidden');
+        } else {
+            document.getElementById('modal-profil-subtitle').innerText = data.jabatan;
+            detailsContainer.innerHTML = `
+                <div class="flex gap-2"><span class="w-20 text-gray-500">NIP/ID</span> <span>: ${data.nip}</span></div>
+                <div class="mt-4 text-gray-300 leading-relaxed">${data.bio}</div>
+            `;
+            quotesContainer.classList.add('hidden');
+        }
+
+        modal.classList.remove('modal-closed');
+        modal.classList.add('modal-open');
+    }
+
+    function openGalleryModal(index) {
+        const data = appData.galeri[index];
+        const modal = document.getElementById('modal-galeri');
+        
+        document.getElementById('modal-galeri-img').src = data.foto_url;
+        document.getElementById('modal-galeri-judul').innerText = data.judul;
+        document.getElementById('modal-galeri-kategori').innerText = data.kategori;
+        document.getElementById('modal-galeri-deskripsi').innerText = data.deskripsi || '';
+
+        modal.classList.remove('modal-closed');
+        modal.classList.add('modal-open');
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.remove('modal-open');
+        modal.classList.add('modal-closed');
+    }
+</script>

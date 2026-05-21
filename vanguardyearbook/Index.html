@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <title>Buku Kenangan | Pondok Pesantren</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        gold: { DEFAULT: '#D4AF37', hover: '#B5952F' },
+                        darkbg: '#0F0D09', // Hitam dengan tint coklat
+                        darkcard: '#1A1710'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0F0D09; color: #F3E5AB; }
+        .hero-bg {
+            background-image: linear-gradient(rgba(15, 13, 9, 0.85), rgba(15, 13, 9, 0.95)), url('https://images.unsplash.com/photo-1564767609342-620cb19b2357?q=80&w=2000');
+            background-size: cover;
+            background-position: center;
+        }
+        .nav-link { transition: color 0.3s ease; cursor: pointer; }
+        .nav-link:hover, .nav-link.active { color: #D4AF37; }
+        .section-hidden { display: none; }
+        
+        /* Modal Transitions */
+        .modal-overlay { transition: opacity 0.3s ease; }
+        .modal-content { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; }
+        .modal-open .modal-overlay { opacity: 1; pointer-events: auto; }
+        .modal-open .modal-content { transform: scale(1); opacity: 1; }
+        .modal-closed .modal-overlay { opacity: 0; pointer-events: none; }
+        .modal-closed .modal-content { transform: scale(0.95); opacity: 0; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0F0D09; }
+        ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
+    </style>
+</head>
+<body class="font-inter antialiased min-h-screen flex flex-col">
+
+    <nav class="fixed w-full z-40 bg-darkbg/95 backdrop-blur-md border-b border-gold/20 py-4 shadow-lg shadow-black/50 transition-all duration-300 hover:border-gold/40">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <div class="flex items-center gap-3 cursor-pointer group" onclick="navigate('home')">
+                <span class="text-gold font-cinzel text-2xl font-bold tracking-wider group-hover:scale-105 transition-transform duration-300">AL-HIKMAH</span>
+            </div>
+            <div class="hidden md:flex space-x-8 text-sm uppercase tracking-widest font-medium">
+                <a class="nav-link active" onclick="navigate('home')">Beranda</a>
+                <a class="nav-link" onclick="navigate('sambutan')">Sambutan</a>
+                <a class="nav-link" onclick="navigate('profil')">Profil</a>
+                <a class="nav-link" onclick="navigate('galeri')">Kenangan</a>
+                <a class="nav-link" onclick="navigate('pesan')">Pesan</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow pt-20">
+        <section id="home" class="page-section hero-bg min-h-[90vh] flex items-center justify-center text-center px-4">
+            <div class="max-w-4xl">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Basmala.svg/1024px-Basmala.svg.png" alt="Bismillah" class="h-20 mx-auto mb-8 invert opacity-80 hover:opacity-100 transition-opacity duration-500" style="filter: brightness(0) saturate(100%) invert(83%) sepia(35%) saturate(762%) hue-rotate(352deg) brightness(91%) contrast(87%);">
+                <p class="text-gold tracking-[0.2em] text-sm md:text-base mb-4 uppercase">As-Salaamu Alaikum</p>
+                <h1 class="text-4xl md:text-6xl font-cinzel font-bold text-white mb-6 leading-tight">
+                    BUKU KENANGAN ALUMNI<br>ANGKATAN 2026
+                </h1>
+                <p class="text-gray-300 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
+                    Menyimpan memori, merajut ukhuwah. Sebuah persembahan memori perjalanan santri menuntut ilmu di Pondok Pesantren Al-Hikmah.
+                </p>
+                <button onclick="navigate('sambutan')" class="bg-gold hover:bg-gold-hover text-darkbg font-bold py-3 px-8 rounded-sm shadow-lg hover:shadow-gold/20 hover:-translate-y-1 transition-all duration-300 tracking-wider text-sm">
+                    MULAI JELAJAHI
+                </button>
+            </div>
+        </section>
+
+        <section id="profil" class="page-section section-hidden py-20">
+            <div class="container mx-auto px-6 max-w-7xl">
+                <div class="flex justify-center mb-12 gap-4">
+                    <button onclick="switchTab('siswa')" id="btn-tab-siswa" class="px-6 py-2 border border-gold text-darkbg bg-gold font-cinzel font-bold transition-all duration-300 hover:shadow-lg shadow-gold/20 rounded-sm">Data Siswa</button>
+                    <button onclick="switchTab('guru')" id="btn-tab-guru" class="px-6 py-2 border border-gold text-gold hover:bg-gold hover:text-darkbg font-cinzel font-bold transition-all duration-300 rounded-sm">Data Guru</button>
+                </div>
+
+                <div id="tab-siswa" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="skeleton-card animate-pulse bg-darkcard p-6 border border-gold/10 rounded-sm"><div class="h-48 bg-gray-800 mb-4 rounded-sm"></div><div class="h-6 bg-gray-800 w-3/4 mb-3 rounded-sm"></div><div class="h-4 bg-gray-800 w-1/2 rounded-sm"></div></div>
+                    <div class="skeleton-card animate-pulse bg-darkcard p-6 border border-gold/10 rounded-sm"><div class="h-48 bg-gray-800 mb-4 rounded-sm"></div><div class="h-6 bg-gray-800 w-3/4 mb-3 rounded-sm"></div><div class="h-4 bg-gray-800 w-1/2 rounded-sm"></div></div>
+                    <div class="skeleton-card animate-pulse bg-darkcard p-6 border border-gold/10 rounded-sm"><div class="h-48 bg-gray-800 mb-4 rounded-sm"></div><div class="h-6 bg-gray-800 w-3/4 mb-3 rounded-sm"></div><div class="h-4 bg-gray-800 w-1/2 rounded-sm"></div></div>
+                </div>
+
+                <div id="tab-guru" class="hidden grid grid-cols-1 md:grid-cols-4 gap-6">
+                    </div>
+            </div>
+        </section>
+
+        <section id="galeri" class="page-section section-hidden py-20 bg-darkcard">
+            <div class="container mx-auto px-6 max-w-7xl">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-cinzel font-bold text-gold mb-2">Jejak Kenangan</h2>
+                    <div class="h-0.5 w-24 bg-gold mx-auto opacity-50"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="container-galeri">
+                     <div class="skeleton-card animate-pulse bg-gray-800 h-64 rounded-sm"></div>
+                     <div class="skeleton-card animate-pulse bg-gray-800 h-64 rounded-sm"></div>
+                     <div class="skeleton-card animate-pulse bg-gray-800 h-64 rounded-sm"></div>
+                </div>
+            </div>
+        </section>
+
+        </main>
+
+    <div id="modal-profil" class="modal-closed fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div class="modal-overlay absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" onclick="closeModal('modal-profil')"></div>
+        <div class="modal-content relative bg-darkcard border border-gold/30 rounded-md shadow-2xl shadow-gold/10 w-full max-w-2xl overflow-hidden z-10 flex flex-col md:flex-row">
+            <button onclick="closeModal('modal-profil')" class="absolute top-4 right-4 text-gray-400 hover:text-gold transition-colors z-20">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="w-full md:w-2/5 h-64 md:h-auto">
+                <img id="modal-profil-img" src="" class="w-full h-full object-cover">
+            </div>
+            <div class="w-full md:w-3/5 p-8 flex flex-col justify-center">
+                <h3 id="modal-profil-nama" class="text-2xl font-cinzel font-bold text-white mb-1">Nama</h3>
+                <p id="modal-profil-subtitle" class="text-gold text-sm mb-6 pb-4 border-b border-gray-800">Subtitle</p>
+                
+                <div id="modal-profil-details" class="space-y-3 text-sm text-gray-300">
+                    </div>
+                
+                <div id="modal-profil-quotes-container" class="mt-6 p-4 bg-black/40 border-l-2 border-gold hidden">
+                    <p id="modal-profil-quotes" class="italic text-gray-400"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-galeri" class="modal-closed fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div class="modal-overlay absolute inset-0 bg-black/90 backdrop-blur-md cursor-pointer" onclick="closeModal('modal-galeri')"></div>
+        <div class="modal-content relative w-full max-w-5xl z-10">
+            <button onclick="closeModal('modal-galeri')" class="absolute -top-10 right-0 text-white hover:text-gold transition-colors">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <img id="modal-galeri-img" src="" class="w-full h-auto max-h-[75vh] object-contain bg-black rounded-sm shadow-2xl">
+            <div class="bg-darkcard border-b border-x border-gold/30 p-6 rounded-b-sm">
+                <h3 id="modal-galeri-judul" class="text-xl font-cinzel font-bold text-gold mb-2">Judul</h3>
+                <div class="flex items-center gap-3 mb-3">
+                    <span id="modal-galeri-kategori" class="px-2 py-1 bg-gold/10 text-gold text-xs rounded-sm border border-gold/20">Kategori</span>
+                </div>
+                <p id="modal-galeri-deskripsi" class="text-gray-300 text-sm leading-relaxed"></p>
+            </div>
+        </div>
+    </div>
+
+    <?!= include('JavaScript'); ?>
+</body>
+</html>
